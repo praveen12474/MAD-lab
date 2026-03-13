@@ -1,0 +1,115 @@
+package com.example.excer8;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+
+public class MainActivity extends AppCompatActivity {
+
+   EditText e1;
+   TextView t1;
+   Button b1, b2;
+   File file;
+
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+       super.onCreate(savedInstanceState);
+       EdgeToEdge.enable(this);
+       setContentView(R.layout.activity_main);
+
+       e1 = findViewById(R.id.editTextText);
+       t1 = findViewById(R.id.textView);
+       b1 = findViewById(R.id.button);
+       b2 = findViewById(R.id.button2);
+
+       // Permission
+       if (ContextCompat.checkSelfPermission(this,
+               Manifest.permission.WRITE_EXTERNAL_STORAGE)
+               != PackageManager.PERMISSION_GRANTED) {
+
+           ActivityCompat.requestPermissions(this,
+                   new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                   1);
+       }
+
+       // File path
+       file = new File(getExternalFilesDir(null), "myfile.txt");
+
+       // Write Button
+       b1.setOnClickListener(this::onClick2);
+
+       // Read Button
+       b2.setOnClickListener(this::onClick);
+   }
+
+   // READ FILE
+   private void onClick(View v) {
+       try {
+
+           FileInputStream fin = new FileInputStream(file);
+           BufferedReader br = new BufferedReader(
+                   new InputStreamReader(fin));
+
+           String line;
+           String data = "";
+
+           while ((line = br.readLine()) != null) {
+               data += line;
+           }
+
+           br.close();
+           fin.close();
+
+           t1.setText(data);
+
+           Toast.makeText(MainActivity.this,
+                   "Data Read Successfully",
+                   Toast.LENGTH_SHORT).show();
+
+       } catch (Exception e) {
+           e.printStackTrace();
+           Toast.makeText(MainActivity.this,
+                   "Error Reading File",
+                   Toast.LENGTH_SHORT).show();
+       }
+   }
+
+   // WRITE FILE
+   private void onClick2(View v) {
+       try {
+
+           String data = e1.getText().toString();
+
+           FileOutputStream fos = new FileOutputStream(file);
+           fos.write(data.getBytes());
+           fos.close();
+
+           Toast.makeText(MainActivity.this,
+                   "Data Written Successfully",
+                   Toast.LENGTH_SHORT).show();
+
+       } catch (Exception e) {
+           e.printStackTrace();
+           Toast.makeText(MainActivity.this,
+                   "Error Writing File",
+                   Toast.LENGTH_SHORT).show();
+       }
+   }
+}
+
